@@ -1,18 +1,30 @@
+
 package com.example.webhook;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Enumeration;
 
 @RestController
 public class WebhookController {
 
+    private static final Logger logger = LoggerFactory.getLogger(WebhookController.class);
+
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(
-            @RequestHeader(value = "X-AdobeSign-ClientId", required = false) String clientId) {
+            @RequestHeader(value = "X-AdobeSign-ClientId", required = false) String clientId,
+            HttpServletRequest request) throws IOException {
+
+        logger.info("Received POST /webhook");
+        logRequestDetails(request);
 
         if (clientId != null && !clientId.isEmpty()) {
             HttpHeaders headers = new HttpHeaders();
@@ -24,8 +36,31 @@ public class WebhookController {
     }
 
     @GetMapping("/webhook/echosign.webhook.verify")
-    public ResponseEntity<String> verifyWebhook() {
+    public ResponseEntity<String> verifyWebhook(HttpServletRequest request) throws IOException {
+        logger.info("Received GET /webhook/echosign.webhook.verify");
+        logRequestDetails(request);
         return ResponseEntity.ok("Webhook verification successful");
     }
 
+    private void logRequestDetails(HttpServletRequest request) throws IOException {
+        logger.info("Method: {}", request.getMethod());
+        logger.info("Request URI: {}", request.getRequestURI());
+
+        Enumeration<String> headerNames = request.getHeaderNames();
+        if (headerNames != null) {
+            for (String headerName : Collections.list(headerNames)) {
+                logger.info("Header: {} = {}", headerName, request.getHeader(headerName));
+            }
+        }
+
+        StringBuilder body = new StringBuilder();
+        BufferedReader reader = request.getReader();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            body.append(line).append("
+");
+        }
+        logger.info("Request Body:
+{}", body.toString());
+    }
 }
