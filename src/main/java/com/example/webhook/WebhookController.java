@@ -35,6 +35,11 @@ public class WebhookController {
         }
     }
 
+    @GetMapping("/webhook")
+    public ResponseEntity<String> handleGetWebhook() {
+        return ResponseEntity.ok("GET /webhook received");
+    }
+
     @GetMapping("/webhook/echosign.webhook.verify")
     public ResponseEntity<String> verifyWebhook(HttpServletRequest request) throws IOException {
         logger.info("Received GET /webhook/echosign.webhook.verify");
@@ -57,10 +62,8 @@ public class WebhookController {
         BufferedReader reader = request.getReader();
         String line;
         while ((line = reader.readLine()) != null) {
-            body.append(line).append("
-");
+            body.append(line).append("");
         }
-        logger.info("Request Body:
-{}", body.toString());
+        logger.info("Request Body:{}", body.toString());
     }
 }
