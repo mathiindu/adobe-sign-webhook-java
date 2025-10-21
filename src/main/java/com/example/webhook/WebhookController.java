@@ -18,6 +18,12 @@ public class WebhookController {
 
     private static final Logger logger = LoggerFactory.getLogger(WebhookController.class);
 
+    @RequestMapping("/**")
+    public ResponseEntity<String> catchAll(HttpServletRequest request) {
+        System.out.println("Received request to: " + request.getRequestURI());
+        return ResponseEntity.ok("Caught by fallback");
+    }
+    
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(
             @RequestHeader(value = "X-AdobeSign-ClientId", required = false) String clientId,
