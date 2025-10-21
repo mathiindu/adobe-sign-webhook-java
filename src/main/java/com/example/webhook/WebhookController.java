@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class WebhookController {
 
     @PostMapping("/webhook")
-    public ResponseEntity<String> handleWebhook(@RequestHeader(value = "X-AdobeSign-ClientId", required = false) String clientId) {
+    public ResponseEntity<String> handleWebhook(
+            @RequestHeader(value = "X-AdobeSign-ClientId", required = false) String clientId) {
+
         if (clientId != null && !clientId.isEmpty()) {
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-AdobeSign-ClientId", clientId);
